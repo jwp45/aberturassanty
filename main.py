@@ -1,8 +1,8 @@
 import tkinter as tk
 from services.database import conectar
 # Importamos las funciones desde nuestra nueva carpeta de módulos
-from modulos.clientes_gui import abrir_gestion_clientes
-from modulos.presupuestos_gui import abrir_nuevo_presupuesto
+from views.clientes_gui import abrir_gestion_clientes
+from views.presupuestos_gui import abrir_nuevo_presupuesto
 
 def crear_ventana_principal():
     root = tk.Tk()

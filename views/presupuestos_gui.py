@@ -67,9 +67,20 @@ def abrir_nuevo_presupuesto():
     tk.Button(ventana, text="Calcular y Guardar", bg="blue", fg="white", font=("Arial", 10, "bold"),
               command=lambda: accion_generar_presupuesto(combo_cliente, ent_ancho, ent_alto, ent_vidrio, txt_res)).pack(pady=20)
 
-    # 4. Resultado (Comprobante)
+    # 4. Resultado (Comprobante) con Scrollbar
     tk.Label(ventana, text="RESULTADO / COMPROBANTE:").pack()
-    txt_res = tk.Text(ventana, height=15, width=60, state="disabled", font=("Courier", 9))
-    txt_res.pack(padx=10, pady=10)
+    
+    # Creamos un frame para contener el texto y el scrollbar
+    frame_txt = tk.Frame(ventana)
+    frame_txt.pack(padx=10, pady=5, fill="both", expand=True)
 
-    tk.Button(ventana, text="Cerrar", command=ventana.destroy).pack(pady=5)
+    scrollbar = tk.Scrollbar(frame_txt)
+    scrollbar.pack(side="right", fill="y")
+
+    txt_res = tk.Text(frame_txt, height=18, width=65, state="disabled", font=("Courier", 10),
+                      yscrollcommand=scrollbar.set)
+    txt_res.pack(side="left", fill="both", expand=True)
+
+    scrollbar.config(command=txt_res.yview)
+
+    tk.Button(ventana, text="Cerrar", command=ventana.destroy).pack(pady=10)
