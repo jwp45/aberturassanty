@@ -1,18 +1,6 @@
-import psycopg2
 from models.Cliente import Cliente
 from models.Presupuesto import Presupuesto
-
-
-#Conectamos a la base de datos de Supabase usando psycopg2 
-
-def conectar():
-    return psycopg2.connect(
-            host="aws-1-us-west-2.pooler.supabase.com",
-            database="postgres",
-            user="postgres.ervrzydvnspoyqmjzwok",
-            password="Wolf@1109788",
-            port="5432"
-        )
+from services.database import conectar
 
 def menu_abm_clientes():
     while True:
