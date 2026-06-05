@@ -1,114 +1,85 @@
 import tkinter as tk
 from tkinter import messagebox
-# Importamos la LÓGICA desde el servicio
 from services.cliente_service import (
     obtener_clientes, obtener_cliente_por_id, 
     guardar_nuevo_cliente, actualizar_cliente_db, eliminar_cliente_db
 )
 
-# --- FUNCIONES DE SOPORTE PARA LA GUI ---
-
-def accion_guardar(ent_nom, ent_tel, ent_dir, ventana):
-    try:
-        guardar_nuevo_cliente(ent_nom.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente guardado")
-        ventana.destroy()
-        abrir_gestion_clientes()
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-
-def accion_eliminar(ent_id, ventana):
-    id_c = ent_id.get()
-    if not id_c: return
-    if messagebox.askyesno("Confirmar", f"¿Eliminar ID {id_c}?"):
-        try:
-            eliminar_cliente_db(id_c)
-            ventana.destroy()
-            abrir_gestion_clientes()
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-
-def accion_cargar_edicion(ent_id, ent_nom, ent_tel, ent_dir):
-    try:
-        res = obtener_cliente_por_id(ent_id.get())
-        if res:
-            ent_nom.delete(0, tk.END)
-            ent_nom.insert(0, res[0])
-            ent_tel.delete(0, tk.END)
-            ent_tel.insert(0, res[1])
-            ent_dir.delete(0, tk.END)
-            ent_dir.insert(0, res[2])
-        else:
-            messagebox.showwarning("Error", "No se encontró el ID")
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-
-def accion_actualizar(ent_id, ent_nom, ent_tel, ent_dir, ventana):
-    try:
-        actualizar_cliente_db(ent_id.get(), ent_nom.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente actualizado")
-        ventana.destroy()
-        abrir_gestion_clientes()
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
-
-# --- INTERFAZ GRÁFICA ---
+"""
+VISTA: Gestiona la interacción con el usuario para el ABM de Clientes.
+Sigue el principio de separación de responsabilidades: la UI no conoce la DB,
+solo llama a los servicios.
+"""
 
 def abrir_gestion_clientes():
     ventana = tk.Toplevel()
     ventana.title("Gestión de Clientes")
     ventana.geometry("550x700")
     
-    # 1. FORMULARIO
+    # --- FORMULARIO ---
     tk.Label(ventana, text="DATOS DEL CLIENTE", font=("Arial", 12, "bold")).pack(pady=10)
     
     tk.Label(ventana, text="Nombre:").pack()
-    ent_nombre = tk.Entry(ventana, width=40)
-    ent_nombre.pack()
+    ent_nombre = tk.Entry(ventana, width=40); ent_nombre.pack()
 
     tk.Label(ventana, text="Teléfono:").pack()
-    ent_tel = tk.Entry(ventana, width=40)
-    ent_tel.pack()
+    ent_tel = tk.Entry(ventana, width=40); ent_tel.pack()
 
     tk.Label(ventana, text="Dirección:").pack()
-    ent_dir = tk.Entry(ventana, width=40)
-    ent_dir.pack()
+    ent_dir = tk.Entry(ventana, width=40); ent_dir.pack()
 
+    # --- BOTONES DE ACCIÓN ---
     frame_btns = tk.Frame(ventana)
     frame_btns.pack(pady=10)
     
-    tk.Button(frame_btns, text="Guardar Nuevo", bg="green", fg="white",
-              command=lambda: accion_guardar(ent_nombre, ent_tel, ent_dir, ventana)).pack(side="left", padx=5)
-    
-    tk.Button(frame_btns, text="Actualizar Existente", bg="orange",
-              command=lambda: accion_actualizar(ent_id_accion, ent_nombre, ent_tel, ent_dir, ventana)).pack(side="left", padx=5)
+    def guardar():
+        guardar_nuevo_cliente(ent_nombre.get(), ent_tel.get(), ent_dir.get())
+        messagebox.showinfo("Éxito", "Cliente guardado")
+        ventana.destroy(); abrir_gestion_clientes()
+
+    def actualizar():
+        actualizar_cliente_db(ent_id_accion.get(), ent_nombre.get(), ent_tel.get(), ent_dir.get())
+        messagebox.showinfo("Éxito", "Cliente actualizado")
+        ventana.destroy(); abrir_gestion_clientes()
+
+    tk.Button(frame_btns, text="Guardar Nuevo", bg="green", fg="white", command=guardar).pack(side="left", padx=5)
+    tk.Button(frame_btns, text="Actualizar", bg="orange", command=actualizar).pack(side="left", padx=5)
 
     tk.Label(ventana, text="--------------------------------------------------").pack()
 
-    # 2. ACCIONES POR ID
-    tk.Label(ventana, text="ACCIONES POR ID", font=("Arial", 10, "bold")).pack()
+    # --- ACCIONES POR ID ---
+    tk.Label(ventana, text="BÚSQUEDA Y ELIMINACIÓN", font=("Arial", 10, "bold")).pack()
     frame_accion = tk.Frame(ventana)
     frame_accion.pack(pady=5)
     
-    tk.Label(frame_accion, text="ID Cliente:").pack(side="left")
-    ent_id_accion = tk.Entry(frame_accion, width=10)
-    ent_id_accion.pack(side="left", padx=5)
+    ent_id_accion = tk.Entry(frame_accion, width=10); ent_id_accion.pack(side="left", padx=5)
 
-    tk.Button(frame_accion, text="Cargar", command=lambda: accion_cargar_edicion(ent_id_accion, ent_nombre, ent_tel, ent_dir)).pack(side="left", padx=5)
-    tk.Button(frame_accion, text="Eliminar", bg="red", fg="white", command=lambda: accion_eliminar(ent_id_accion, ventana)).pack(side="left", padx=5)
+    def cargar():
+        res = obtener_cliente_por_id(ent_id_accion.get())
+        if res:
+            for e, val in zip([ent_nombre, ent_tel, ent_dir], res):
+                e.delete(0, tk.END); e.insert(0, val)
+        else: messagebox.showwarning("Error", "No encontrado")
 
-    tk.Label(ventana, text="--------------------------------------------------").pack()
+    def eliminar():
+        if messagebox.askyesno("Confirmar", "¿Eliminar cliente?"):
+            eliminar_cliente_db(ent_id_accion.get())
+            ventana.destroy(); abrir_gestion_clientes()
 
-    # 3. LISTADO
-    tk.Label(ventana, text="LISTADO DE CLIENTES", font=("Arial", 12, "bold")).pack(pady=10)
-    lista_frame = tk.Frame(ventana)
-    lista_frame.pack(fill="both", expand=True, padx=20)
+    tk.Button(frame_accion, text="Cargar", command=cargar).pack(side="left", padx=5)
+    tk.Button(frame_accion, text="Eliminar", bg="red", fg="white", command=eliminar).pack(side="left", padx=5)
 
-    try:
-        clientes = obtener_clientes()
-        for c in clientes:
-            tk.Label(lista_frame, text=f"ID: {c[0]} | {c[1]} | Tel: {c[2]}").pack(anchor="w")
-    except Exception as e:
-        tk.Label(lista_frame, text=f"Error: {e}", fg="red").pack()
+    # --- LISTADO ---
+    tk.Label(ventana, text="LISTADO ACTUAL", font=("Arial", 12, "bold")).pack(pady=10)
+    canvas = tk.Canvas(ventana); scrollbar = tk.Scrollbar(ventana, orient="vertical", command=canvas.yview)
+    scrollable_frame = tk.Frame(canvas)
 
-    tk.Button(ventana, text="Cerrar", command=ventana.destroy).pack(pady=10)
+    scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    clientes = obtener_clientes()
+    for c in clientes:
+        tk.Label(scrollable_frame, text=f"ID: {c[0]} | {c[1]} | Tel: {c[2]}", font=("Courier", 9)).pack(anchor="w")
+
+    canvas.pack(side="left", fill="both", expand=True, padx=20); scrollbar.pack(side="right", fill="y")

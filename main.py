@@ -3,22 +3,26 @@ from services.database import conectar
 # Importamos las funciones desde nuestra nueva carpeta de módulos
 from views.clientes_gui import abrir_gestion_clientes
 from views.presupuestos_gui import abrir_nuevo_presupuesto
+from views.configuracion_gui import abrir_configuracion
 
 def crear_ventana_principal():
     root = tk.Tk()
     root.title("Santy Aberturas - Sistema Online")
-    root.geometry("400x400")
+    root.geometry("400x500")
 
     # Título Principal
     titulo = tk.Label(root, text="SANTY ABERTURAS", font=("Arial", 18, "bold"), fg="blue")
     titulo.pack(pady=30)
 
-    # Botones del Menú que ahora llaman a las funciones importadas
+    # Botones del Menú
     btn_clientes = tk.Button(root, text="Gestionar Clientes", width=25, height=2, command=abrir_gestion_clientes)
     btn_clientes.pack(pady=10)
 
     btn_presupuesto = tk.Button(root, text="Realizar Presupuesto", width=25, height=2, command=abrir_nuevo_presupuesto)
     btn_presupuesto.pack(pady=10)
+
+    btn_config = tk.Button(root, text="Configuración", width=25, height=2, command=abrir_configuracion)
+    btn_config.pack(pady=10)
 
     btn_salir = tk.Button(root, text="Salir", width=25, height=2, bg="red", fg="white", command=root.quit)
     btn_salir.pack(pady=10)

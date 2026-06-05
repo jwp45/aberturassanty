@@ -1,86 +1,84 @@
 from datetime import datetime
+from services.config_service import cargar_configuracion
 
 class Presupuesto:
-    def __init__(self, id_presupuesto, cliente, ancho, alto, tipo_vidrio="dvh"):
+    """
+    MODELO: Contiene la lógica técnica y matemática del presupuesto.
+    Calcula materiales, peso y precio final basándose en la configuración.
+    """
+    def __init__(self, id_presupuesto, cliente, ancho, alto, tipo_vidrio="dvh", tipo_abertura="Corrediza", color="Natural"):
         self.id_presupuesto = id_presupuesto
-        self.cliente = cliente  # Agregación: objeto de la clase Cliente
+        self.cliente = cliente
         self.ancho = ancho
         self.alto = alto
         self.tipo_vidrio = tipo_vidrio
+        self.tipo_abertura = tipo_abertura
+        self.color = color
         self.fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
         
-        # LISTA DE PRECIOS (Valores actuales para el trabajo práctico)
-        self.PRECIO_KG_ALUMINIO = 8500.0
-        self.PRECIO_M2_VIDRIO_4MM = 18000.0
-        self.PRECIO_M2_VIDRIO_DVH = 45000.0
-        self.COSTO_HERRAJES_KIT = 35000.0 # Promedio entre 25k y 45k
-
-    def calcular_m2(self):
-        """Calcula la superficie de la abertura."""
-        return self.ancho * self.alto
+        # Carga precios y perfiles desde el archivo config.json
+        self.config = cargar_configuracion()
+        self.MARGEN_GANANCIA = self.config["margen_ganancia"]
 
     def procesar_presupuesto(self):
         """
-        Realiza el cálculo paso a paso siguiendo la lógica de carpintería:
-        1. M2 y Metros Lineales
-        2. Peso y Costo de Aluminio
-        3. Costo de Vidrio y Herrajes
-        4. Precio Final (Factor 1.6)
+        Lógica Principal:
+        1. Identifica perfiles según tipo (MO-101, HO-203, etc.)
+        2. Calcula KG de aluminio según metros lineales y peso por metro.
+        3. Suma Vidrio, Herrajes e Insumos (7%).
+        4. Aplica Coeficiente de Mano de Obra (Margen).
         """
-        # 1. Superficie
-        superficie_m2 = self.calcular_m2()
+        info_tipo = self.config["tipos_abertura"].get(self.tipo_abertura)
+        if not info_tipo: raise ValueError("Tipo de abertura no configurado")
+            
+        # --- Cálculo de Aluminio ---
+        peso_total_al = 0
+        perfiles_usados = []
+        precio_kg = self.config["precios"]["aluminio_kg"]
+        factor_color = self.config["colores_aluminio"].get(self.color, 1.0)
         
-        # 2. Desarrollo Lineal (Fórmula simplificada: suma de perímetros de marco y hoja)
-        # Usamos un factor de 5.5 para cubrir marco, hoja y desperdicios
-        metros_lineales = (self.ancho + self.alto) * 5.5
+        for p in info_tipo["perfiles_requeridos"]:
+            perfil_data = self.config["perfiles"][p["codigo"]]
+            ml = (self.ancho + self.alto) * p["cantidad_factor"]
+            peso_total_al += ml * perfil_data["peso_kg_m"]
+            perfiles_usados.append(f"{p['codigo']} ({ml:.1f}m)")
+
+        costo_aluminio = peso_total_al * precio_kg * factor_color
         
-        # 3. Peso y Costo Aluminio
-        peso_aluminio = metros_lineales * 1.1  # Promedio kg/m de Línea Moderna
-        costo_aluminio = peso_aluminio * self.PRECIO_KG_ALUMINIO
+        # --- Cálculo de Vidrio y Herrajes ---
+        m2 = self.ancho * self.alto
+        v_precio = self.config["precios"]["vidrio_dvh_m2"] if self.tipo_vidrio == "dvh" else self.config["precios"]["vidrio_4mm_m2"]
+        costo_vidrio = m2 * v_precio
+        costo_herrajes = self.config["precios"]["herrajes_kit"] * info_tipo["factor_herrajes"]
+        costo_insumos = costo_aluminio * self.config.get("insumos_porcentaje", 0.07) # Burletes/Tornillos
         
-        # 4. Vidrio (4mm o DVH)
-        precio_m2_v = self.PRECIO_M2_VIDRIO_DVH if self.tipo_vidrio == "dvh" else self.PRECIO_M2_VIDRIO_4MM
-        costo_vidrio = superficie_m2 * precio_m2_v
-        
-        # 5. Herrajes
-        costo_herrajes = self.COSTO_HERRAJES_KIT
-        
-        # 6. Cálculo Final con Coeficiente (1.6 = Materiales + Mano de Obra + Ganancia)
-        costo_total_materiales = costo_aluminio + costo_vidrio + costo_herrajes
-        precio_final = costo_total_materiales * 1.6
+        # --- Precio Final ---
+        total_materiales = costo_aluminio + costo_vidrio + costo_herrajes + costo_insumos
+        precio_final = total_materiales * self.MARGEN_GANANCIA
         
         return {
-            "m2": round(superficie_m2, 2),
-            "metros_lineales": round(metros_lineales, 2),
-            "peso_al": round(peso_aluminio, 2),
-            "c_aluminio": round(costo_aluminio, 2),
-            "c_vidrio": round(costo_vidrio, 2),
-            "c_herrajes": round(costo_herrajes, 2),
-            "total": round(precio_final, 2)
+            "m2": round(m2, 2), "peso": round(peso_total_al, 2),
+            "c_al": costo_aluminio, "c_vi": costo_vidrio, 
+            "c_he": costo_herrajes + costo_insumos,
+            "total": precio_final, "detalle_p": ", ".join(perfiles_usados)
         }
 
     def generar_comprobante(self):
         res = self.procesar_presupuesto()
-        comprobante = (
+        m = self.MARGEN_GANANCIA
+        return (
             f"==================================================\n"
             f"          SANTY ABERTURAS - PRESUPUESTO           \n"
             f"==================================================\n"
-            f"N°: {self.id_presupuesto} | Fecha: {self.fecha}\n"
-            f"Cliente: {self.cliente.nombre}\n"
+            f"Cliente: {self.cliente.nombre} | Fecha: {self.fecha}\n"
+            f"Detalle: {self.tipo_abertura} {self.color} ({self.ancho}x{self.alto})\n"
+            f"Perfiles: {res['detalle_p']}\n"
             f"--------------------------------------------------\n"
-            f"DETALLE TÉCNICO:\n"
-            f" - Medidas: {self.ancho}m x {self.alto}m\n"
-            f" - Superficie: {res['m2']} m²\n"
-            f" - Vidrio: {self.tipo_vidrio.upper()}\n"
-            f" - Aluminio: {res['peso_al']} kg est.\n"
+            f"PRECIOS (Con Mano de Obra Incluida):\n"
+            f" - Estructura Aluminio: ${res['c_al'] * m:,.2f}\n"
+            f" - Vidrio / Paño:       ${res['c_vi'] * m:,.2f}\n"
+            f" - Accesorios y Varios: ${res['c_he'] * m:,.2f}\n"
             f"--------------------------------------------------\n"
-            f"DESGLOSE DE MATERIALES:\n"
-            f" - Aluminio: ${res['c_aluminio']:,.2f}\n"
-            f" - Vidrio:   ${res['c_vidrio']:,.2f}\n"
-            f" - Herrajes: ${res['c_herrajes']:,.2f}\n"
-            f"--------------------------------------------------\n"
-            f"PRECIO FINAL (IVA INC.): ${res['total']:,.2f}\n"
+            f"TOTAL FINAL: ${res['total']:,.2f}\n"
             f"==================================================\n"
-            f"Fórmula: (Materiales) x 1.6 Coef. Ganancia/MO\n"
         )
-        return comprobante
