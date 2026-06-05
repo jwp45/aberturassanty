@@ -16,62 +16,107 @@ def abrir_gestion_clientes():
     ventana.title("Gestión de Clientes")
     ventana.geometry("550x700")
     
-    # --- FORMULARIO ---
-    tk.Label(ventana, text="DATOS DEL CLIENTE", font=("Arial", 12, "bold")).pack(pady=10)
-    
-    tk.Label(ventana, text="Nombre:").pack()
-    ent_nombre = tk.Entry(ventana, width=40); ent_nombre.pack()
+    # Contenedor principal con margen interno
+    main_frame = tk.Frame(ventana, padx=15, pady=15)
+    main_frame.pack(fill="both", expand=True)
 
-    tk.Label(ventana, text="Teléfono:").pack()
-    ent_tel = tk.Entry(ventana, width=40); ent_tel.pack()
+    # ==========================================
+    # 1. SECCIÓN: FORMULARIO (Datos del Cliente)
+    # ==========================================
+    frame_formulario = tk.LabelFrame(main_frame, text=" Datos del Cliente ", font=("Arial", 10, "bold"), padx=10, pady=10)
+    frame_formulario.pack(fill="x", pady=10)
+    frame_formulario.columnconfigure(1, weight=1) # Permite que los campos de texto se estiren
 
-    tk.Label(ventana, text="Dirección:").pack()
-    ent_dir = tk.Entry(ventana, width=40); ent_dir.pack()
+    # Etiquetas y Campos utilizando GRID para alineación perfecta
+    tk.Label(frame_formulario, text="Nombre:").grid(row=0, column=0, sticky="w", pady=5)
+    ent_nombre = tk.Entry(frame_formulario, font=("Arial", 10))
+    ent_nombre.grid(row=0, column=1, sticky="ew", padx=10, pady=5)
 
-    # --- BOTONES DE ACCIÓN ---
-    frame_btns = tk.Frame(ventana)
-    frame_btns.pack(pady=10)
+    tk.Label(frame_formulario, text="Teléfono:").grid(row=1, column=0, sticky="w", pady=5)
+    ent_tel = tk.Entry(frame_formulario, font=("Arial", 10))
+    ent_tel.grid(row=1, column=1, sticky="ew", padx=10, pady=5)
+
+    tk.Label(frame_formulario, text="Dirección:").grid(row=2, column=0, sticky="w", pady=5)
+    ent_dir = tk.Entry(frame_formulario, font=("Arial", 10))
+    ent_dir.grid(row=2, column=1, sticky="ew", padx=10, pady=5)
+
+    # Botones de Acción dentro del formulario
+    frame_btns = tk.Frame(frame_formulario)
+    frame_btns.grid(row=3, column=0, columnspan=2, pady=10)
     
     def guardar():
+        if not ent_nombre.get():
+            messagebox.showwarning("Atención", "El nombre es obligatorio")
+            return
         guardar_nuevo_cliente(ent_nombre.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente guardado")
-        ventana.destroy(); abrir_gestion_clientes()
+        messagebox.showinfo("Éxito", "Cliente guardado correctamente")
+        ventana.destroy()
+        abrir_gestion_clientes()
 
     def actualizar():
+        if not ent_id_accion.get():
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para actualizar")
+            return
+        if not ent_nombre.get():
+            messagebox.showwarning("Atención", "El nombre es obligatorio")
+            return
         actualizar_cliente_db(ent_id_accion.get(), ent_nombre.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente actualizado")
-        ventana.destroy(); abrir_gestion_clientes()
+        messagebox.showinfo("Éxito", "Cliente actualizado correctamente")
+        ventana.destroy()
+        abrir_gestion_clientes()
 
-    tk.Button(frame_btns, text="Guardar Nuevo", bg="green", fg="white", command=guardar).pack(side="left", padx=5)
-    tk.Button(frame_btns, text="Actualizar", bg="orange", command=actualizar).pack(side="left", padx=5)
-
-    tk.Label(ventana, text="--------------------------------------------------").pack()
-
-    # --- ACCIONES POR ID ---
-    tk.Label(ventana, text="BÚSQUEDA Y ELIMINACIÓN", font=("Arial", 10, "bold")).pack()
-    frame_accion = tk.Frame(ventana)
-    frame_accion.pack(pady=5)
+    btn_guardar = tk.Button(frame_btns, text="Guardar Nuevo", bg="#28a745", fg="white", font=("Arial", 9, "bold"), padx=10, command=guardar)
+    btn_guardar.pack(side="left", padx=10)
     
-    ent_id_accion = tk.Entry(frame_accion, width=10); ent_id_accion.pack(side="left", padx=5)
+    btn_actualizar = tk.Button(frame_btns, text="Actualizar", bg="#fd7e14", fg="white", font=("Arial", 9, "bold"), padx=10, command=actualizar)
+    btn_actualizar.pack(side="left", padx=10)
+
+    # ==========================================
+    # 2. SECCIÓN: BÚSQUEDA Y ELIMINACIÓN
+    # ==========================================
+    frame_busqueda = tk.LabelFrame(main_frame, text=" Búsqueda y Eliminación ", font=("Arial", 10, "bold"), padx=10, pady=10)
+    frame_busqueda.pack(fill="x", pady=10)
+
+    tk.Label(frame_busqueda, text="Buscar ID:").pack(side="left", padx=5)
+    ent_id_accion = tk.Entry(frame_busqueda, width=10, font=("Arial", 10))
+    ent_id_accion.pack(side="left", padx=5)
 
     def cargar():
+        if not ent_id_accion.get():
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para buscar")
+            return
         res = obtener_cliente_por_id(ent_id_accion.get())
         if res:
             for e, val in zip([ent_nombre, ent_tel, ent_dir], res):
-                e.delete(0, tk.END); e.insert(0, val)
-        else: messagebox.showwarning("Error", "No encontrado")
+                e.delete(0, tk.END)
+                e.insert(0, val)
+        else:
+            messagebox.showwarning("Error", "Cliente no encontrado")
 
     def eliminar():
-        if messagebox.askyesno("Confirmar", "¿Eliminar cliente?"):
+        if not ent_id_accion.get():
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para eliminar")
+            return
+        if messagebox.askyesno("Confirmar", "¿Está seguro de que desea eliminar este cliente?"):
             eliminar_cliente_db(ent_id_accion.get())
-            ventana.destroy(); abrir_gestion_clientes()
+            messagebox.showinfo("Éxito", "Cliente eliminado")
+            ventana.destroy()
+            abrir_gestion_clientes()
 
-    tk.Button(frame_accion, text="Cargar", command=cargar).pack(side="left", padx=5)
-    tk.Button(frame_accion, text="Eliminar", bg="red", fg="white", command=eliminar).pack(side="left", padx=5)
+    btn_cargar = tk.Button(frame_busqueda, text="Cargar Datos", font=("Arial", 9), command=cargar)
+    btn_cargar.pack(side="left", padx=5)
 
-    # --- LISTADO ---
-    tk.Label(ventana, text="LISTADO ACTUAL", font=("Arial", 12, "bold")).pack(pady=10)
-    canvas = tk.Canvas(ventana); scrollbar = tk.Scrollbar(ventana, orient="vertical", command=canvas.yview)
+    btn_eliminar = tk.Button(frame_busqueda, text="Eliminar Cliente", bg="#dc3545", fg="white", font=("Arial", 9, "bold"), command=eliminar)
+    btn_eliminar.pack(side="left", padx=5)
+
+    # ==========================================
+    # 3. SECCIÓN: LISTADO ACTUAL
+    # ==========================================
+    frame_listado = tk.LabelFrame(main_frame, text=" Listado de Clientes ", font=("Arial", 10, "bold"), padx=10, pady=10)
+    frame_listado.pack(fill="both", expand=True, pady=10)
+
+    canvas = tk.Canvas(frame_listado, highlightthickness=0)
+    scrollbar = tk.Scrollbar(frame_listado, orient="vertical", command=canvas.yview)
     scrollable_frame = tk.Frame(canvas)
 
     scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
@@ -80,6 +125,10 @@ def abrir_gestion_clientes():
 
     clientes = obtener_clientes()
     for c in clientes:
-        tk.Label(scrollable_frame, text=f"ID: {c[0]} | {c[1]} | Tel: {c[2]}", font=("Courier", 9)).pack(anchor="w")
+        # Formato limpio para cada cliente de la lista
+        texto_cliente = f"ID: {c[0]:<4} | Nombre: {c[1]:<20} | Tel: {c[2]}"
+        lbl = tk.Label(scrollable_frame, text=texto_cliente, font=("Courier", 9), anchor="w")
+        lbl.pack(anchor="w", fill="x", pady=2)
 
-    canvas.pack(side="left", fill="both", expand=True, padx=20); scrollbar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
