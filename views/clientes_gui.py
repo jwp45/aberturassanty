@@ -45,25 +45,29 @@ def abrir_gestion_clientes():
     frame_btns.grid(row=3, column=0, columnspan=2, pady=10)
     
     def guardar():
-        if not ent_nombre.get():
-            messagebox.showwarning("Atención", "El nombre es obligatorio")
-            return
-        guardar_nuevo_cliente(ent_nombre.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente guardado correctamente")
-        ventana.destroy()
-        abrir_gestion_clientes()
+        try:
+            guardar_nuevo_cliente(ent_nombre.get(), ent_tel.get(), ent_dir.get())
+            messagebox.showinfo("Éxito", "Cliente guardado correctamente", parent=ventana)
+            ventana.destroy()
+            abrir_gestion_clientes()
+        except ValueError as e:
+            messagebox.showerror("Error de Validación", str(e), parent=ventana)
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {str(e)}", parent=ventana)
 
     def actualizar():
         if not ent_id_accion.get():
-            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para actualizar")
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para actualizar", parent=ventana)
             return
-        if not ent_nombre.get():
-            messagebox.showwarning("Atención", "El nombre es obligatorio")
-            return
-        actualizar_cliente_db(ent_id_accion.get(), ent_nombre.get(), ent_tel.get(), ent_dir.get())
-        messagebox.showinfo("Éxito", "Cliente actualizado correctamente")
-        ventana.destroy()
-        abrir_gestion_clientes()
+        try:
+            actualizar_cliente_db(ent_id_accion.get(), ent_nombre.get(), ent_tel.get(), ent_dir.get())
+            messagebox.showinfo("Éxito", "Cliente actualizado correctamente", parent=ventana)
+            ventana.destroy()
+            abrir_gestion_clientes()
+        except ValueError as e:
+            messagebox.showerror("Error de Validación", str(e), parent=ventana)
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {str(e)}", parent=ventana)
 
     btn_guardar = tk.Button(frame_btns, text="Guardar Nuevo", bg="#28a745", fg="white", font=("Arial", 9, "bold"), padx=10, command=guardar)
     btn_guardar.pack(side="left", padx=10)
@@ -83,7 +87,7 @@ def abrir_gestion_clientes():
 
     def cargar():
         if not ent_id_accion.get():
-            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para buscar")
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para buscar", parent=ventana)
             return
         res = obtener_cliente_por_id(ent_id_accion.get())
         if res:
@@ -91,15 +95,15 @@ def abrir_gestion_clientes():
                 e.delete(0, tk.END)
                 e.insert(0, val)
         else:
-            messagebox.showwarning("Error", "Cliente no encontrado")
+            messagebox.showwarning("Error", "Cliente no encontrado", parent=ventana)
 
     def eliminar():
         if not ent_id_accion.get():
-            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para eliminar")
+            messagebox.showwarning("Atención", "Debe ingresar el ID del cliente para eliminar", parent=ventana)
             return
-        if messagebox.askyesno("Confirmar", "¿Está seguro de que desea eliminar este cliente?"):
+        if messagebox.askyesno("Confirmar", "¿Está seguro de que desea eliminar este cliente?", parent=ventana):
             eliminar_cliente_db(ent_id_accion.get())
-            messagebox.showinfo("Éxito", "Cliente eliminado")
+            messagebox.showinfo("Éxito", "Cliente eliminado", parent=ventana)
             ventana.destroy()
             abrir_gestion_clientes()
 

@@ -48,9 +48,9 @@ def abrir_configuracion():
             config["margen_ganancia"] = float(entry_margen.get())
             
             guardar_configuracion(config)
-            messagebox.showinfo("Éxito", "Configuración guardada correctamente.")
+            messagebox.showinfo("Éxito", "Configuración guardada correctamente.", parent=ventana)
             ventana.destroy()
         except ValueError:
-            messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos.")
+            messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos.", parent=ventana)
 
     tk.Button(ventana, text="Guardar Configuración", bg="green", fg="white", command=guardar).pack(pady=20)

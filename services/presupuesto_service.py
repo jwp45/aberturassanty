@@ -1,6 +1,7 @@
 from services.database import conectar
 from models.Presupuesto import Presupuesto
 from models.Cliente import Cliente
+from services.decorators import validar_medidas_abertura
 
 def obtener_clientes_para_combo():
     """Obtiene ID y Nombre de clientes para el selector de presupuestos."""
@@ -14,6 +15,7 @@ def obtener_clientes_para_combo():
     except Exception as e:
         raise e
 
+@validar_medidas_abertura
 def calcular_y_guardar_presupuesto(id_cliente, ancho, alto, tipo_vidrio, tipo_abertura, color):
     """Realiza el cálculo y guarda en la DB."""
     try:

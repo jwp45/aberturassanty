@@ -1,4 +1,5 @@
 from services.database import conectar
+from services.decorators import validar_nombre_cliente
 
 def obtener_clientes():
     """Devuelve la lista de todos los clientes."""
@@ -24,10 +25,9 @@ def obtener_cliente_por_id(id_cliente):
     except Exception as e:
         raise e
 
+@validar_nombre_cliente
 def guardar_nuevo_cliente(nombre, telefono, direccion):
     """Inserta un nuevo cliente en la DB."""
-    if not nombre:
-        raise ValueError("El nombre es obligatorio")
     
     try:
         conexion = conectar()
@@ -39,10 +39,11 @@ def guardar_nuevo_cliente(nombre, telefono, direccion):
     except Exception as e:
         raise e
 
+@validar_nombre_cliente
 def actualizar_cliente_db(id_cliente, nombre, telefono, direccion):
     """Actualiza un cliente existente."""
-    if not id_cliente or not nombre:
-        raise ValueError("ID y Nombre son obligatorios")
+    if not id_cliente:
+        raise ValueError("ID es obligatorio")
 
     try:
         conexion = conectar()

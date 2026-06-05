@@ -71,11 +71,6 @@ def abrir_nuevo_presupuesto():
     # ==========================================
     def generar():
         try:
-            # Validar que se ingresen las medidas
-            if not ent_ancho.get() or not ent_alto.get():
-                messagebox.showwarning("Atención", "Debe ingresar el ancho y el alto de la abertura")
-                return
-
             id_c = combo_cliente.get().split(":")[0]
             v_limpio = combo_vidrio.get().split(" ")[0].lower()
             t_limpio = combo_tipo.get().split("(")[0].strip()
@@ -86,11 +81,11 @@ def abrir_nuevo_presupuesto():
             txt_res.delete("1.0", tk.END)
             txt_res.insert(tk.END, ticket)
             txt_res.config(state="disabled")
-            messagebox.showinfo("Éxito", "Presupuesto calculado y guardado correctamente")
-        except ValueError:
-            messagebox.showerror("Error de Entrada", "El ancho y el alto deben ser valores numéricos válidos (ej: 1.50)")
+            messagebox.showinfo("Éxito", "Presupuesto calculado y guardado correctamente", parent=ventana)
+        except ValueError as e:
+            messagebox.showerror("Error de Entrada", str(e), parent=ventana)
         except Exception as e: 
-            messagebox.showerror("Error", str(e))
+            messagebox.showerror("Error", str(e), parent=ventana)
 
     btn_generar = tk.Button(main_frame, text="Calcular y Guardar Presupuesto", bg="#007bff", fg="white", font=("Arial", 10, "bold"), pady=8, command=generar)
     btn_generar.pack(fill="x", pady=10)
