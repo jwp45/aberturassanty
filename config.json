@@ -1,0 +1,76 @@
+{
+    "precios": {
+        "aluminio_kg": 8500.0,
+        "vidrio_4mm_m2": 18000.0,
+        "vidrio_dvh_m2": 45000.0,
+        "herrajes_kit": 35000.0
+    },
+    "perfiles": {
+        "MO-101": {
+            "nombre": "Marco ventana corrediza",
+            "peso_kg_m": 1.2
+        },
+        "HO-203": {
+            "nombre": "Hoja ventana corrediza",
+            "peso_kg_m": 1.0
+        },
+        "PF-301": {
+            "nombre": "Marco pa\u00f1o fijo",
+            "peso_kg_m": 0.8
+        },
+        "PU-401": {
+            "nombre": "Marco puerta",
+            "peso_kg_m": 1.5
+        },
+        "PU-402": {
+            "nombre": "Hoja puerta",
+            "peso_kg_m": 1.4
+        }
+    },
+    "tipos_abertura": {
+        "Corrediza": {
+            "perfiles_requeridos": [
+                {
+                    "codigo": "MO-101",
+                    "cantidad_factor": 2.0
+                },
+                {
+                    "codigo": "HO-203",
+                    "cantidad_factor": 4.0
+                }
+            ],
+            "factor_herrajes": 1.0
+        },
+        "Pa\u00f1o Fijo": {
+            "perfiles_requeridos": [
+                {
+                    "codigo": "PF-301",
+                    "cantidad_factor": 2.0
+                }
+            ],
+            "factor_herrajes": 0.2
+        },
+        "Puerta": {
+            "perfiles_requeridos": [
+                {
+                    "codigo": "PU-401",
+                    "cantidad_factor": 2.0
+                },
+                {
+                    "codigo": "PU-402",
+                    "cantidad_factor": 2.0
+                }
+            ],
+            "factor_herrajes": 1.5
+        }
+    },
+    "insumos_porcentaje": 0.07,
+    "colores_aluminio": {
+        "Natural": 1.0,
+        "Blanco": 1.15,
+        "Negro": 1.2
+    },
+    "margen_ganancia": 1.6,
+    "resend_api_key": "re_b2AWas7o_8jmdMCsYSeSzVwPjAqa5gJWR",
+    "resend_from_email": "Santy Aberturas <presupuestos@clarosdelunahospedaje.com.ar>"
+}

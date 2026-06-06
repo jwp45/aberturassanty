@@ -56,9 +56,9 @@ def calcular_y_guardar_presupuesto(id_cliente, ancho, alto, tipo_vidrio, tipo_ab
         conexion.commit()
         conexion.close()
         
-        # Devolvemos el comprobante generado
+        # Devolvemos el comprobante generado y el objeto Presupuesto
         presu_temp.id_presupuesto = id_db
-        return presu_temp.generar_comprobante()
+        return presu_temp.generar_comprobante(), presu_temp
         
     except Exception as e:
         raise e

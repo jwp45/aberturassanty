@@ -1,0 +1,14 @@
+==================================================
+          SANTY ABERTURAS - PRESUPUESTO           
+==================================================
+Cliente: Carlos Ponce | Fecha: 05/06/2026 22:01
+Detalle: Corrediza Natural (2.0x2.0)
+Perfiles: MO-101 (8.0m), HO-203 (16.0m)
+--------------------------------------------------
+PRECIOS (Con Mano de Obra Incluida):
+ - Estructura Aluminio: $348,160.00
+ - Vidrio / Paño:       $115,200.00
+ - Accesorios y Varios: $80,371.20
+--------------------------------------------------
+TOTAL FINAL: $543,731.20
+==================================================

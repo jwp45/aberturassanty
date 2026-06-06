@@ -1,8 +1,10 @@
 import json
 import os
 
-CONFIG_FILE = "config.json"
-
+# Ruta absoluta al archivo de configuración para garantizar que funcione sin importar el CWD
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
+#Se encarga de cargar y guardar la configuración del sistema, incluyendo precios, perfiles, tipos de abertura, etc.
 DEFAULT_CONFIG = {
     "precios": {
         "aluminio_kg": 8500.0,
@@ -45,7 +47,9 @@ DEFAULT_CONFIG = {
         "Blanco": 1.15,
         "Negro": 1.20
     },
-    "margen_ganancia": 1.6
+    "margen_ganancia": 1.6,
+    "resend_api_key": "re_b2AWas7o_8jmdMCsYSeSzVwPjAqa5gJWR",
+    "resend_from_email": "Santy Aberturas <onboarding@resend.dev>"
 }
 
 def cargar_configuracion():
