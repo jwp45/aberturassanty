@@ -11,6 +11,7 @@ Este desarrollo forma parte del **Trabajo Práctico N.º 2** para la materia **P
 * **Lenguaje:** Python 3.x
 * **Interfaz Gráfica:** Tkinter (Librería nativa de GUI en Python)
 * **Persistencia en la Nube:** Supabase (Base de datos PostgreSQL en la nube)
+* **Envío de Emails:** Resend API (Notificaciones automáticas de presupuestos)
 * **Gestión de Configuración:** Archivos JSON local (`config.json` para almacenamiento parametrizable de costos)
 * **Decoradores e Introspección:** Librerías nativas `functools` e `inspect` para validación dinámica de datos
 
@@ -38,6 +39,7 @@ AberturasSanty/
 │   ├── database.py         # Conexión remota con Supabase
 │   ├── cliente_service.py  # CRUD de Clientes en base de datos
 │   ├── presupuesto_service.py # Lógica de cálculo y almacenamiento de presupuestos
+│   ├── export_service.py   # Exportación a TXT y envío de Emails vía Resend
 │   ├── config_service.py   # Lectura y guardado de parámetros locales
 │   └── decorators.py       # Decoradores para validación en tiempo de ejecución
 │
@@ -46,6 +48,17 @@ AberturasSanty/
     ├── presupuestos_gui.py # Ventana para Generar Presupuestos
     └── configuracion_gui.py # Ventana de Configuración de precios
 ```
+
+---
+
+## 🏛️ Clases Principales
+
+*   **`Cliente`:** Representa al destinatario del presupuesto. Gestiona los datos personales (nombre, teléfono, dirección) con validaciones mediante encapsulamiento.
+*   **`Presupuesto`:** Clase central que orquestra el cálculo. Relaciona un cliente con las dimensiones de la abertura y gestiona la composición de materiales.
+*   **`Componente`:** Clase abstracta/base que define la interfaz común para todos los elementos que forman parte de una abertura.
+*   **`PerfilAluminio` (Hereda de `Componente`):** Especializada en el cálculo de costo por peso y tratamiento superficial (color).
+*   **`Vidrio` (Hereda de `Componente`):** Especializada en el cálculo de costo por superficie (m²).
+*   **`Herraje` (Hereda de `Componente`):** Representa accesorios fijos como cerraduras, ruedas o escuadras.
 
 ---
 
@@ -131,6 +144,33 @@ classDiagram
 5. **Relaciones (Asociación y Composición):**
    - **Asociación:** Un `Presupuesto` se asocia a un `Cliente`.
    - **Composición:** Un `Presupuesto` está compuesto por múltiples objetos `Componente`.
+
+---
+
+## 🛠️ Funcionalidades
+
+El sistema permite realizar una gestión integral del proceso de presupuestado:
+
+1.  **Gestión de Clientes (ABM):** Registro, consulta, actualización y eliminación de clientes en la base de datos remota (Supabase).
+2.  **Cálculo Técnico Automático:** Generación de presupuestos basados en medidas (ancho y alto), calculando automáticamente:
+    *   **Perfiles de Aluminio:** Cantidad de metros lineales y peso según códigos técnicos (MO-101, HO-203, etc.).
+    *   **Vidrios:** Superficie en m² y costo según el tipo seleccionado.
+    *   **Herrajes e Insumos:** Inclusión automática de accesorios y porcentajes de desperdicio/insumos secundarios.
+3.  **Configuración Dinámica:** Interfaz para actualizar precios de materiales (aluminio por kg, vidrios por m²) y margen de ganancia sin modificar el código fuente.
+4.  **Generación de Comprobantes:** Creación de un resumen detallado del presupuesto en formato de texto plano para visualización inmediata.
+5.  **Envío Automático por Email:** Integración con la API de **Resend** para el envío formal del presupuesto en formato HTML profesional directamente al cliente.
+6.  **Persistencia en la Nube:** Sincronización en tiempo real de los datos de clientes para acceso multi-terminal.
+
+---
+
+## 📝 Ejemplos de Uso
+
+### Caso: Presupuesto de Ventana Corrediza
+1.  **Ingreso de Datos:** Se selecciona un cliente existente o se ingresan los datos de uno nuevo.
+2.  **Medidas:** Se ingresa el ancho (ej. 1.50m) y el alto (ej. 1.10m).
+3.  **Selección de Materiales:** Se elige el tipo de vidrio (ej. Float 4mm) y el color del aluminio (ej. Blanco).
+4.  **Procesamiento:** El sistema calcula el peso de los perfiles necesarios, la superficie del vidrio y aplica el factor de costo por color.
+5.  **Resultado:** Se muestra el costo total con el margen de ganancia aplicado y se genera el comprobante detallado.
 
 ---
 
