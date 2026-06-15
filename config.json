@@ -1,8 +1,8 @@
 {
     "precios": {
-        "aluminio_kg": 8500.0,
-        "vidrio_4mm_m2": 18000.0,
-        "vidrio_dvh_m2": 45000.0,
+        "aluminio_kg": 1200.0,
+        "vidrio_4mm_m2": 24000.0,
+        "vidrio_dvh_m2": 50000.0,
         "herrajes_kit": 35000.0
     },
     "perfiles": {

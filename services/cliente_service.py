@@ -6,7 +6,7 @@ def obtener_clientes():
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        cursor.execute("SELECT id_cliente, nombre, telefono, direccion FROM clientes ORDER BY id_cliente DESC")
+        cursor.execute("SELECT id_cliente, nombre, telefono, direccion, email FROM clientes ORDER BY id_cliente DESC")
         clientes = cursor.fetchall()
         conexion.close()
         return clientes
@@ -18,7 +18,7 @@ def obtener_cliente_por_id(id_cliente):
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        cursor.execute("SELECT nombre, telefono, direccion FROM clientes WHERE id_cliente = %s", (id_cliente,))
+        cursor.execute("SELECT nombre, telefono, direccion, email FROM clientes WHERE id_cliente = %s", (id_cliente,))
         cliente = cursor.fetchone()
         conexion.close()
         return cliente
@@ -26,21 +26,21 @@ def obtener_cliente_por_id(id_cliente):
         raise e
 
 @validar_nombre_cliente
-def guardar_nuevo_cliente(nombre, telefono, direccion):
+def guardar_nuevo_cliente(nombre, telefono, direccion, email=None):
     """Inserta un nuevo cliente en la DB."""
     
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        sql = "INSERT INTO clientes (nombre, telefono, direccion) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (nombre, telefono, direccion))
+        sql = "INSERT INTO clientes (nombre, telefono, direccion, email) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (nombre, telefono, direccion, email))
         conexion.commit()
         conexion.close()
     except Exception as e:
         raise e
 
 @validar_nombre_cliente
-def actualizar_cliente_db(id_cliente, nombre, telefono, direccion):
+def actualizar_cliente_db(id_cliente, nombre, telefono, direccion, email=None):
     """Actualiza un cliente existente."""
     if not id_cliente:
         raise ValueError("ID es obligatorio")
@@ -48,8 +48,8 @@ def actualizar_cliente_db(id_cliente, nombre, telefono, direccion):
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        sql = "UPDATE clientes SET nombre=%s, telefono=%s, direccion=%s WHERE id_cliente=%s"
-        cursor.execute(sql, (nombre, telefono, direccion, id_cliente))
+        sql = "UPDATE clientes SET nombre=%s, telefono=%s, direccion=%s, email=%s WHERE id_cliente=%s"
+        cursor.execute(sql, (nombre, telefono, direccion, email, id_cliente))
         conexion.commit()
         conexion.close()
     except Exception as e:
