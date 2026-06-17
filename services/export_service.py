@@ -135,8 +135,12 @@ def enviar_presupuesto_por_email(presupuesto: Presupuesto, destinatario: str):
         "subject": f"Presupuesto #{presupuesto.id_presupuesto} - Santy Aberturas",
         "html": html_content
     }
-    
-    data = json.dumps(payload).encode("utf-8")
+    """Para enviar datos JSON en el cuerpo de la solicitud POST, 
+    primero convertimos el diccionario 'payload' a una cadena JSON usando json.dumps(), 
+    y luego lo codificamos a bytes con .encode("utf-8") porque urllib.request.Request 
+    espera los datos en formato bytes.
+                                               """
+    data = json.dumps(payload).encode("utf-8") 
     req = urllib.request.Request(url, data=data, headers=headers, method="POST")
     
     try:
