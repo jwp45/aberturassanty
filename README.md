@@ -27,7 +27,6 @@ AberturasSanty/
 ├── main.py                 # Punto de entrada de la aplicación
 ├── config.json             # Configuración persistente de costos (generada automáticamente)
 ├── README.md               # Documentación obligatoria del proyecto
-├── consignas.pdf           # Consignas del trabajo práctico
 │
 ├── models/                 # Lógica de Negocio (Modelado de datos)
 │   ├── __init__.py         # Módulo y lógica de consola (para pruebas de terminal)
