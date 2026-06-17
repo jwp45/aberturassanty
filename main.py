@@ -5,6 +5,7 @@ from services.database import conectar
 from views.clientes_gui import abrir_gestion_clientes
 from views.presupuestos_gui import abrir_nuevo_presupuesto
 from views.configuracion_gui import abrir_configuracion
+from views.login_gui import LoginGUI
 
 # Configuración de Tcl/Tk (necesaria para tu entorno)
 if sys.platform == "win32":
@@ -87,4 +88,8 @@ def crear_ventana_principal():
     root.mainloop()
 
 if __name__ == "__main__":
-    crear_ventana_principal()
+    # Primero lanzamos el Login
+    login = LoginGUI()
+    if login.iniciar():
+        # Solo si se autenticó con éxito, abrimos la ventana principal
+        crear_ventana_principal()
